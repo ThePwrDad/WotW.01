@@ -1,4 +1,0 @@
-repository "WotW.2.01/WotW.2.01@2475938239409@cloud"
-  path "/"
-    br "/main"
-    co "/main"
