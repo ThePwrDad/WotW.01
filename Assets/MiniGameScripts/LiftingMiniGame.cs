@@ -1,7 +1,6 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
-using UnityEngine.InputSystem; // MUST HAVE THIS
-using WeightLifter;
 using TMPro;
 
 namespace WeightLifter
@@ -9,8 +8,9 @@ namespace WeightLifter
     public class LiftingMiniGame : MonoBehaviour
     {
         [Header("UI References")]
-        public GameObject miniGameUI; 
-        public Slider progressBar;
+        public GameObject miniGameUI;      // Optional container
+        public GameObject contextUI;       // Prompt + score + gains
+        public Slider progressBar;         // Gameplay-only visual
 
         [Header("UI Feedback")]
         public TMP_Text swolScoreText;
@@ -21,117 +21,144 @@ namespace WeightLifter
         public float drainSpeed = 0.2f;
         public float clickPower = 0.15f;
 
-       private bool isActive = false;
-        private WeightData currentTarget;
-        private PlayerStats stats;
-        private bool awaitingStart = false;
+        private bool isActive = false;
+        private bool showingRecentGain = false;
 
-        void Start()
+        private WeightData currentTarget;
+        public WeightData CurrentTarget => currentTarget;
+
+        private PlayerStats stats;
+
+        public void SetCurrentTarget(WeightData target)
+        {
+            currentTarget = target;
+            RefreshContextUI();
+        }
+
+        public void ClearCurrentTarget(WeightData target)
+        {
+            if (currentTarget == target)
+            {
+                currentTarget = null;
+                RefreshContextUI();
+            }
+        }
+
+        private void Start()
         {
             stats = GetComponent<PlayerStats>();
-            if(miniGameUI != null) miniGameUI.SetActive(false);
-            if (swolScoreText != null) swolScoreText.text = "Swol: " + stats.currentStrength.ToString("F1");
-            if (gainsText != null) gainsText.enabled = false;
-            if (liftPromptText != null) liftPromptText.enabled = false;
+
+            // Keep context visible at all times
+            if (contextUI != null) contextUI.SetActive(true);
+
+            // Do NOT hard-disable shared containers; only hide gameplay widgets
+            SetMiniGameVisualsActive(false);
+
+            if (progressBar != null) progressBar.value = 0.2f;
+
+            RefreshContextUI();
         }
 
-        public void StartLifting(WeightData target)
+        private void Update()
         {
-            if (isActive && awaitingStart) return;
-            currentTarget = target;
-            awaitingStart = true;
-            UpdateSwolScore();
-        }
+            RefreshContextUI();
 
-        void Update()
-        {
-            // If waiting for player to press E to start the mini-game
-            if (awaitingStart)
+            if (!isActive && currentTarget != null && stats != null && !stats.isBusy &&
+                Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
             {
-                if (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
-                {
-                    isActive = true;
-                    awaitingStart = false;
-                    stats.isBusy = true;
-                    miniGameUI.SetActive(true);
-                    if (progressBar != null) progressBar.value = 0.2f;
-                }
-            }
-
-            // Allow retriggering minigame by pressing E again after fail
-            if (!isActive && currentTarget != null && Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
-            {
-                awaitingStart = true;
+                isActive = true;
+                stats.isBusy = true;
+                SetMiniGameVisualsActive(true);
+                if (progressBar != null) progressBar.value = 0.2f;
             }
 
             if (!isActive) return;
 
-            // Constant drain of the progress bar (gravity effect)
             if (progressBar != null) progressBar.value -= drainSpeed * Time.deltaTime;
 
-            // 2. NEW INPUT SYSTEM: Left Mouse Click
-            // This checks if the mouse was clicked specifically this frame
             if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
             {
                 if (progressBar != null) progressBar.value += clickPower;
-                Debug.Log("<color=yellow>CLICK!</color> Power: " + (progressBar != null ? progressBar.value.ToString() : "N/A"));
             }
 
-            if (progressBar != null && progressBar.value >= 1.0f)
-            {
-                CompleteLift();
-            }
-
-            if (progressBar != null && progressBar.value <= 0)
-            {
-                FailLift();
-            }
-
-            // Show lift prompt if in range and not active
-            if (!isActive && currentTarget != null)
-            {
-                if (liftPromptText != null) liftPromptText.enabled = true;
-            }
-            else
-            {
-                if (liftPromptText != null) liftPromptText.enabled = false;
-            }
+            if (progressBar != null && progressBar.value >= 1.0f) CompleteLift();
+            if (progressBar != null && progressBar.value <= 0f) FailLift();
         }
 
-        void CompleteLift()
+        private void CompleteLift()
         {
+            if (currentTarget == null || stats == null) { FailLift(); return; }
+
             isActive = false;
-            awaitingStart = false;
             stats.isBusy = false;
-            miniGameUI.SetActive(false);
+            SetMiniGameVisualsActive(false);
+
             stats.AbsorbObject(currentTarget.gameObject, currentTarget.weight);
+
+            float gain = currentTarget.weight * stats.strengthGainMultiplier;
             if (gainsText != null)
             {
-                gainsText.text = "Gains Received, Swol Increased";
+                gainsText.text = $"Gains: +{gain:F1}";
                 gainsText.enabled = true;
-                Invoke("HideGainsText", 2f);
+                showingRecentGain = true;
+                CancelInvoke(nameof(HideGainsText));
+                Invoke(nameof(HideGainsText), 2f);
             }
-            UpdateSwolScore();
+
+            RefreshContextUI();
         }
 
-        void FailLift()
+        private void FailLift()
         {
             isActive = false;
-            awaitingStart = false;
-            stats.isBusy = false;
-            miniGameUI.SetActive(false);
-            // Do not clear currentTarget, so E can retrigger
+            if (stats != null) stats.isBusy = false;
+            SetMiniGameVisualsActive(false);
+            RefreshContextUI();
         }
 
-        void UpdateSwolScore()
+        private void RefreshContextUI()
         {
-            if (swolScoreText != null)
-                swolScoreText.text = "Swol: " + stats.currentStrength.ToString("F1");
+            if (swolScoreText != null && stats != null)
+                swolScoreText.text = $"Swol: {stats.currentStrength:F1}";
+
+            if (liftPromptText != null)
+            {
+                bool canLift = currentTarget != null && !isActive && stats != null && !stats.isBusy;
+                liftPromptText.text = canLift ? "Press E for Reps" : string.Empty;
+                liftPromptText.enabled = canLift;
+            }
+
+            if (gainsText != null && !showingRecentGain)
+            {
+                if (currentTarget != null && stats != null)
+                {
+                    float preview = currentTarget.weight * stats.strengthGainMultiplier;
+                    gainsText.text = $"Gains: +{preview:F1}";
+                    gainsText.enabled = true;
+                }
+                else
+                {
+                    gainsText.text = string.Empty;
+                    gainsText.enabled = false;
+                }
+            }
         }
 
-        void HideGainsText()
+        private void HideGainsText()
         {
-            if (gainsText != null) gainsText.enabled = false;
+            showingRecentGain = false;
+            RefreshContextUI();
+        }
+
+        private void SetMiniGameVisualsActive(bool active)
+        {
+            // If miniGameUI is a dedicated gameplay panel, toggle it.
+            // If miniGameUI also contains context text, keep it active and only toggle progressBar.
+            if (miniGameUI != null && miniGameUI != contextUI)
+                miniGameUI.SetActive(active);
+
+            if (progressBar != null)
+                progressBar.gameObject.SetActive(active);
         }
     }
 }
