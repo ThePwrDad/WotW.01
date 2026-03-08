@@ -21,8 +21,12 @@ namespace WeightLifter
         public float drainSpeed = 0.2f;
         public float clickPower = 0.15f;
 
+        [Header("Timing")]
+        public float gainsDisplaySeconds = 2f;
+
         private bool isActive = false;
         private bool showingRecentGain = false;
+        private bool canToggleMiniGameContainer = true;
 
         private WeightData currentTarget;
         public WeightData CurrentTarget => currentTarget;
@@ -48,13 +52,21 @@ namespace WeightLifter
         {
             stats = GetComponent<PlayerStats>();
 
-            // Keep context visible at all times
-            if (contextUI != null) contextUI.SetActive(true);
+            // Prevent hiding context UI via parent toggle
+            if (miniGameUI != null && contextUI != null && contextUI.transform.IsChildOf(miniGameUI.transform))
+            {
+                canToggleMiniGameContainer = false;
+                Debug.LogWarning("LiftingMiniGame: contextUI is a child of miniGameUI. miniGameUI will not be toggled to keep prompt/score visible.");
+            }
 
-            // Do NOT hard-disable shared containers; only hide gameplay widgets
+            if (contextUI != null) contextUI.SetActive(true);
             SetMiniGameVisualsActive(false);
 
             if (progressBar != null) progressBar.value = 0.2f;
+
+            if (swolScoreText != null) swolScoreText.enabled = true;
+            if (liftPromptText != null) liftPromptText.enabled = false;
+            if (gainsText != null) gainsText.enabled = false;
 
             RefreshContextUI();
         }
@@ -93,16 +105,21 @@ namespace WeightLifter
             stats.isBusy = false;
             SetMiniGameVisualsActive(false);
 
-            stats.AbsorbObject(currentTarget.gameObject, currentTarget.weight);
+            // Cache target/gain, then clear target so prompt hides immediately
+            WeightData liftedTarget = currentTarget;
+            float gain = liftedTarget.weight * stats.strengthGainMultiplier;
+            currentTarget = null;
 
-            float gain = currentTarget.weight * stats.strengthGainMultiplier;
+            stats.AbsorbObject(liftedTarget.gameObject, liftedTarget.weight);
+
+            // Show only post-lift gain amount
             if (gainsText != null)
             {
                 gainsText.text = $"Gains: +{gain:F1}";
                 gainsText.enabled = true;
                 showingRecentGain = true;
                 CancelInvoke(nameof(HideGainsText));
-                Invoke(nameof(HideGainsText), 2f);
+                Invoke(nameof(HideGainsText), gainsDisplaySeconds);
             }
 
             RefreshContextUI();
@@ -118,29 +135,29 @@ namespace WeightLifter
 
         private void RefreshContextUI()
         {
-            if (swolScoreText != null && stats != null)
-                swolScoreText.text = $"Swol: {stats.currentStrength:F1}";
+            if (contextUI != null && !contextUI.activeSelf)
+                contextUI.SetActive(true);
 
+            // Always-on Swol counter
+            if (swolScoreText != null && stats != null)
+            {
+                swolScoreText.text = $"Swol: {stats.currentStrength:F1}";
+                swolScoreText.enabled = true;
+            }
+
+            // Prompt only when liftable object is in range and player can act
             if (liftPromptText != null)
             {
                 bool canLift = currentTarget != null && !isActive && stats != null && !stats.isBusy;
-                liftPromptText.text = canLift ? "Press E for Reps" : string.Empty;
+                liftPromptText.text = canLift ? "E for Reps!" : string.Empty;
                 liftPromptText.enabled = canLift;
             }
 
+            // Gains text only after completed lift (no preview while in range)
             if (gainsText != null && !showingRecentGain)
             {
-                if (currentTarget != null && stats != null)
-                {
-                    float preview = currentTarget.weight * stats.strengthGainMultiplier;
-                    gainsText.text = $"Gains: +{preview:F1}";
-                    gainsText.enabled = true;
-                }
-                else
-                {
-                    gainsText.text = string.Empty;
-                    gainsText.enabled = false;
-                }
+                gainsText.text = string.Empty;
+                gainsText.enabled = false;
             }
         }
 
@@ -152,9 +169,7 @@ namespace WeightLifter
 
         private void SetMiniGameVisualsActive(bool active)
         {
-            // If miniGameUI is a dedicated gameplay panel, toggle it.
-            // If miniGameUI also contains context text, keep it active and only toggle progressBar.
-            if (miniGameUI != null && miniGameUI != contextUI)
+            if (canToggleMiniGameContainer && miniGameUI != null && miniGameUI != contextUI)
                 miniGameUI.SetActive(active);
 
             if (progressBar != null)
