@@ -25,12 +25,14 @@ namespace WeightLifter
             WeightData cube = other.GetComponent<WeightData>();
             if (cube == null) return;
 
-            if (stats.currentStrength >= cube.weight)
+            // Allow lifting objects up to our max multiplier threshold
+            float maxLiftableWeight = stats.currentStrength * liftingMiniGame.maxWeightMultiplier;
+
+            if (cube.weight <= maxLiftableWeight)
                 liftingMiniGame.SetCurrentTarget(cube);
             else
                 liftingMiniGame.ClearCurrentTarget(cube);
         }
-
         private void OnTriggerExit(Collider other)
         {
             if (liftingMiniGame == null) return;

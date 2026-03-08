@@ -20,6 +20,7 @@ namespace WeightLifter
         [Header("Settings")]
         public float drainSpeed = 0.2f;
         public float clickPower = 0.15f;
+        public float maxWeightMultiplier = 1.5f; // Objects up to 1.5x your strength are liftable
 
         [Header("Timing")]
         public float gainsDisplaySeconds = 2f;
@@ -27,6 +28,8 @@ namespace WeightLifter
         private bool isActive = false;
         private bool showingRecentGain = false;
         private bool canToggleMiniGameContainer = true;
+        private float currentDrainSpeed;
+        private float currentClickPower;
 
         private WeightData currentTarget;
         public WeightData CurrentTarget => currentTarget;
@@ -82,15 +85,27 @@ namespace WeightLifter
                 stats.isBusy = true;
                 SetMiniGameVisualsActive(true);
                 if (progressBar != null) progressBar.value = 0.2f;
+                // --- DYNAMIC DIFFICULTY CALCULATION ---
+                // Prevent divide-by-zero just in case strength is 0
+                float safeStrength = Mathf.Max(0.1f, stats.currentStrength); 
+                float weightRatio = currentTarget.weight / safeStrength;
+
+                // Light objects = huge click power. Heavy objects = weak click power.
+                // Clamped to 1f so super light objects can be 1-clicked, but don't break the UI.
+                currentClickPower = Mathf.Clamp(clickPower / Mathf.Max(0.01f, weightRatio), 0f, 1f); 
+
+                // Heavy objects drain faster, light objects drain slower.
+                currentDrainSpeed = drainSpeed * weightRatio;
             }
+            
 
             if (!isActive) return;
 
-            if (progressBar != null) progressBar.value -= drainSpeed * Time.deltaTime;
+            if (progressBar != null) progressBar.value -= currentDrainSpeed * Time.deltaTime;
 
             if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
             {
-                if (progressBar != null) progressBar.value += clickPower;
+                if (progressBar != null) progressBar.value += currentClickPower;
             }
 
             if (progressBar != null && progressBar.value >= 1.0f) CompleteLift();
