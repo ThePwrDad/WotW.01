@@ -8270,9 +8270,11 @@ MonoBehaviour:
   isBusy: 0
   strengthGainMultiplier: 0.1
   visualRoot: {fileID: 0}
-  scaleGainPerStrength: 0.01
+  modelRoot: {fileID: 0}
   absorbDuration: 0.6
-  maxVisualScale: 3
+  maxVisualScale: 200
+  debugScalingLogs: 1
+  functionalScaleFactor: 1
 --- !u!114 &2098925856
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8285,6 +8287,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a11179ec7cafba142959c55618b55679, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LiftingInteraction
+  debugLiftDetection: 1
+  debugVerboseMisses: 1
 --- !u!54 &2098925864
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -8353,6 +8357,7 @@ MonoBehaviour:
   liftPromptText: {fileID: 618946709}
   drainSpeed: 0.2
   clickPower: 0.15
+  maxWeightMultiplier: 1.5
   gainsDisplaySeconds: 2
 --- !u!1 &2111960434
 GameObject:
