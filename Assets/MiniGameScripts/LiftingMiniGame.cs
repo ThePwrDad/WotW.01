@@ -20,7 +20,13 @@ namespace WeightLifter
         [Header("Settings")]
         public float drainSpeed = 0.2f;
         public float clickPower = 0.15f;
-        public float maxWeightMultiplier = 1.5f; // Objects up to 1.5x your strength are liftable
+        // CHANGE: Raised from 1.5 to 3.0. The original cap meant objects heavier than
+        // 1.5x the player's strength were silently unliftable with no feedback. Raising
+        // it to 3x supports the intended design of absorbing progressively larger objects.
+        // The dynamic difficulty system (weightRatio) already makes heavier objects harder
+        // to lift via faster drain and reduced click power, so no separate difficulty cap
+        // is needed at this multiplier.
+        public float maxWeightMultiplier = 3f;
 
         [Header("Timing")]
         public float gainsDisplaySeconds = 2f;
@@ -117,7 +123,13 @@ namespace WeightLifter
             if (currentTarget == null || stats == null) { FailLift(); return; }
 
             isActive = false;
-            stats.isBusy = false;
+            // CHANGE: Removed stats.isBusy = false from here. Previously this cleared isBusy
+            // before AbsorbRoutine even started (StartCoroutine queues the coroutine for next
+            // frame), meaning isBusy was effectively false during the absorb animation and
+            // objects entering the trigger zone during that window were never registered.
+            // Ownership of isBusy=false now belongs exclusively to PlayerStats.AbsorbRoutine,
+            // which clears it at the true end of the absorb animation, then immediately calls
+            // RescanOverlapping to catch anything that was missed.
             SetMiniGameVisualsActive(false);
 
             // Cache target/gain, then clear target so prompt hides immediately
