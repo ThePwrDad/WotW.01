@@ -2,6 +2,9 @@ using System.Collections;
 using UnityEngine;
 using StarterAssets;
 
+// CHANGE: Added StarterAssets using directive so we can access ThirdPersonController
+// and wire functional scaling into the same controller that already drives the character.
+
 namespace WeightLifter
 {
     public class PlayerStats : MonoBehaviour
@@ -13,6 +16,8 @@ namespace WeightLifter
         [Header("Settings")]
         public float strengthGainMultiplier = 0.1f;
 
+        // CHANGE: visualRoot is the player root transform for persistent scaling.
+        // modelRoot is the visible rig child used only as the absorb fly-to target.
         [Header("Visuals")]
         [Tooltip("Leave empty; root transform is used for scaling.")]
         public Transform visualRoot;
@@ -69,6 +74,7 @@ namespace WeightLifter
 
         private void Start()
         {
+            // Scale the player root, not the rig child. Animator updates can overwrite child scales.
             visualRoot = transform;
 
             if (modelRoot == null)
@@ -113,6 +119,7 @@ namespace WeightLifter
             visualRoot.localScale = new Vector3(s, s, s);
         }
 
+        // CHANGE: Use a square-root curve so growth stays dramatic but controlled.
         private float GetTargetScaleValue()
         {
             float ratio = currentStrength / _initialStrength;
@@ -134,6 +141,7 @@ namespace WeightLifter
             }
         }
 
+        // CHANGE: Keep CharacterController and ThirdPersonController proportional to visual size.
         private void UpdateFunctionalScale()
         {
             if (visualRoot == null || _baseVisualScale.x <= 0f) return;
@@ -226,10 +234,8 @@ namespace WeightLifter
 
             Debug.Log($"<color=green>STRENGTH UP!</color> Gained: {gain}. New Total: {currentStrength}");
 
-            // Busy is cleared only when absorb animation is truly complete.
             isBusy = false;
 
-            // Re-check nearby colliders that may have entered while busy.
             var interaction = GetComponent<LiftingInteraction>();
             if (interaction != null) interaction.RescanOverlapping();
 

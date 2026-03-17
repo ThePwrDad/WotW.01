@@ -57,7 +57,6 @@ namespace WeightLifter
 
             _loggedMissingColliderIds.Remove(other.GetInstanceID());
 
-            // Allow lifting objects up to our max multiplier threshold
             float maxLiftableWeight = stats.currentStrength * liftingMiniGame.maxWeightMultiplier;
             bool isLiftable = cube.weight <= maxLiftableWeight;
 
