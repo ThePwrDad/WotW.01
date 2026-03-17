@@ -20,7 +20,7 @@ namespace WeightLifter
         [Header("Settings")]
         public float drainSpeed = 0.2f;
         public float clickPower = 0.15f;
-        public float maxWeightMultiplier = 1.5f; // Objects up to 1.5x your strength are liftable
+        public float maxWeightMultiplier = 3f; // Objects up to 3x your strength are liftable
 
         [Header("Timing")]
         public float gainsDisplaySeconds = 2f;
@@ -117,7 +117,7 @@ namespace WeightLifter
             if (currentTarget == null || stats == null) { FailLift(); return; }
 
             isActive = false;
-            stats.isBusy = false;
+            // Busy flag is cleared in PlayerStats when absorb animation finishes.
             SetMiniGameVisualsActive(false);
 
             // Cache target/gain, then clear target so prompt hides immediately
