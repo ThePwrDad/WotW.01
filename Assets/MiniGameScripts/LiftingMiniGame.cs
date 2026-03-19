@@ -49,6 +49,7 @@ namespace WeightLifter
         // to lift via faster drain and reduced click power, so no separate difficulty cap
         // is needed at this multiplier.
         public float maxWeightMultiplier = 3f;
+        public float maxWeightMultiplier = 3f; // Objects up to 3x your strength are liftable
 
         [Header("Timing")]
         public float gainsDisplaySeconds = 2f;
@@ -186,6 +187,7 @@ namespace WeightLifter
             // Ownership of isBusy=false now belongs exclusively to PlayerStats.AbsorbRoutine,
             // which clears it at the true end of the absorb animation, then immediately calls
             // RescanOverlapping to catch anything that was missed.
+            // Busy flag is cleared in PlayerStats when absorb animation finishes.
             SetMiniGameVisualsActive(false);
             FinalizeHeldForAbsorb();
 
