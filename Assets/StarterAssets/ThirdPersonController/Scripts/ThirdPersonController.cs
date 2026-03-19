@@ -18,6 +18,10 @@ namespace StarterAssets
         [Tooltip("Move speed of the character in m/s")]
         public float MoveSpeed = 5.0f;
 
+        [Header("External Control")]
+        [Tooltip("Read-only runtime flag set by external systems (e.g., heavy lift) to block movement input.")]
+        public bool IsMovementExternallyLocked { get; private set; }
+
         [Tooltip("Sprint speed of the character in m/s")]
         public float SprintSpeed = 10.335f;
 
@@ -213,20 +217,23 @@ namespace StarterAssets
 
         private void Move()
         {
+            Vector2 moveInput = IsMovementExternallyLocked ? Vector2.zero : _input.move;
+            bool sprintInput = !IsMovementExternallyLocked && _input.sprint;
+
             // set target speed based on move speed, sprint speed and if sprint is pressed
-            float targetSpeed = _input.sprint ? SprintSpeed : MoveSpeed;
+            float targetSpeed = sprintInput ? SprintSpeed : MoveSpeed;
 
             // a simplistic acceleration and deceleration designed to be easy to remove, replace, or iterate upon
 
             // note: Vector2's == operator uses approximation so is not floating point error prone, and is cheaper than magnitude
             // if there is no input, set the target speed to 0
-            if (_input.move == Vector2.zero) targetSpeed = 0.0f;
+            if (moveInput == Vector2.zero) targetSpeed = 0.0f;
 
             // a reference to the players current horizontal velocity
             float currentHorizontalSpeed = new Vector3(_controller.velocity.x, 0.0f, _controller.velocity.z).magnitude;
 
             float speedOffset = 0.1f;
-            float inputMagnitude = _input.analogMovement ? _input.move.magnitude : 1f;
+            float inputMagnitude = _input.analogMovement ? moveInput.magnitude : (moveInput == Vector2.zero ? 0f : 1f);
 
             // accelerate or decelerate to target speed
             if (currentHorizontalSpeed < targetSpeed - speedOffset ||
@@ -249,11 +256,11 @@ namespace StarterAssets
             if (_animationBlend < 0.01f) _animationBlend = 0f;
 
             // normalise input direction
-            Vector3 inputDirection = new Vector3(_input.move.x, 0.0f, _input.move.y).normalized;
+            Vector3 inputDirection = new Vector3(moveInput.x, 0.0f, moveInput.y).normalized;
 
             // note: Vector2's != operator uses approximation so is not floating point error prone, and is cheaper than magnitude
             // if there is a move input rotate player when the player is moving
-            if (_input.move != Vector2.zero)
+            if (moveInput != Vector2.zero)
             {
                 _targetRotation = Mathf.Atan2(inputDirection.x, inputDirection.z) * Mathf.Rad2Deg +
                                   _mainCamera.transform.eulerAngles.y;
@@ -281,6 +288,11 @@ namespace StarterAssets
 
         private void JumpAndGravity()
         {
+            if (IsMovementExternallyLocked)
+            {
+                _input.jump = false;
+            }
+
             if (Grounded)
             {
                 // reset the fall timeout timer
@@ -345,6 +357,18 @@ namespace StarterAssets
             if (_verticalVelocity < _terminalVelocity)
             {
                 _verticalVelocity += Gravity * Time.deltaTime;
+            }
+        }
+
+        public void SetExternalMovementLock(bool isLocked)
+        {
+            IsMovementExternallyLocked = isLocked;
+
+            if (isLocked && _input != null)
+            {
+                _input.move = Vector2.zero;
+                _input.sprint = false;
+                _input.jump = false;
             }
         }
 
