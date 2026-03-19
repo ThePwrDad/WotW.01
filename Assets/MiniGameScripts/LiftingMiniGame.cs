@@ -49,7 +49,6 @@ namespace WeightLifter
         // to lift via faster drain and reduced click power, so no separate difficulty cap
         // is needed at this multiplier.
         public float maxWeightMultiplier = 3f;
-        public float maxWeightMultiplier = 3f; // Objects up to 3x your strength are liftable
 
         [Header("Timing")]
         public float gainsDisplaySeconds = 2f;
@@ -131,7 +130,10 @@ namespace WeightLifter
         {
             RefreshContextUI();
 
+            bool standingOnCurrentTarget = currentTarget != null && IsStandingOnTarget(currentTarget);
+
             if (!isActive && currentTarget != null && stats != null && !stats.isBusy &&
+                !standingOnCurrentTarget &&
                 Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
             {
                 isActive = true;
@@ -250,9 +252,19 @@ namespace WeightLifter
             // Prompt only when liftable object is in range and player can act
             if (liftPromptText != null)
             {
-                bool canLift = currentTarget != null && !isActive && stats != null && !stats.isBusy;
-                liftPromptText.text = canLift ? "E for Reps!" : string.Empty;
-                liftPromptText.enabled = canLift;
+                bool hasTarget = currentTarget != null;
+                bool canAct = !isActive && stats != null && !stats.isBusy;
+                bool standingOnTarget = hasTarget && canAct && IsStandingOnTarget(currentTarget);
+                bool canLift = hasTarget && canAct && !standingOnTarget;
+
+                if (canLift)
+                    liftPromptText.text = "E for Reps!";
+                else if (standingOnTarget)
+                    liftPromptText.text = "Step off object to lift";
+                else
+                    liftPromptText.text = string.Empty;
+
+                liftPromptText.enabled = canLift || standingOnTarget;
             }
 
             // Gains text only after completed lift (no preview while in range)
@@ -494,6 +506,38 @@ namespace WeightLifter
             bool show = isActive && lockMovementForCurrentLift;
             heavyLiftMessageText.text = show ? heavyLiftMessage : string.Empty;
             heavyLiftMessageText.enabled = show;
+        }
+
+        private bool IsStandingOnTarget(WeightData target)
+        {
+            if (target == null || playerController == null) return false;
+
+            Vector3 worldCenter = transform.TransformPoint(playerController.center);
+            float castRadius = Mathf.Max(0.05f, playerController.radius * 0.9f);
+            float halfHeight = Mathf.Max(playerController.height * 0.5f, playerController.radius);
+            float castDistance = (halfHeight - playerController.radius) + 0.35f;
+
+            if (Physics.SphereCast(worldCenter + Vector3.up * 0.05f, castRadius, Vector3.down,
+                out RaycastHit hit, castDistance, ~0, QueryTriggerInteraction.Ignore))
+            {
+                return IsColliderOnTarget(hit.collider, target);
+            }
+
+            return false;
+        }
+
+        private static bool IsColliderOnTarget(Collider collider, WeightData target)
+        {
+            if (collider == null || target == null) return false;
+
+            WeightData fromSelf = collider.GetComponent<WeightData>();
+            if (fromSelf == target) return true;
+
+            WeightData fromParent = collider.GetComponentInParent<WeightData>();
+            if (fromParent == target) return true;
+
+            WeightData fromChild = collider.GetComponentInChildren<WeightData>();
+            return fromChild == target;
         }
     }
 }
