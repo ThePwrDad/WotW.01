@@ -1,4 +1,5 @@
 ﻿ using UnityEngine;
+using Unity.Cinemachine;
 #if ENABLE_INPUT_SYSTEM 
 using UnityEngine.InputSystem;
 #endif
@@ -79,6 +80,10 @@ namespace StarterAssets
         [Tooltip("For locking the camera position on all axis")]
         public bool LockCameraPosition = false;
 
+        [Header("Camera Scaling")]
+        [Tooltip("When enabled, Cinemachine follow offsets and distance scale with the player's size.")]
+        public bool ScaleCameraWithPlayer = true;
+
         // cinemachine
         private float _cinemachineTargetYaw;
         private float _cinemachineTargetPitch;
@@ -109,6 +114,13 @@ namespace StarterAssets
         private CharacterController _controller;
         private StarterAssetsInputs _input;
         private GameObject _mainCamera;
+
+        private CinemachineThirdPersonFollow _thirdPersonFollow;
+        private float _basePlayerScale = 1f;
+        private float _baseCameraDistance;
+        private float _baseVerticalArmLength;
+        private Vector3 _baseShoulderOffset;
+        private bool _hasCameraFollowDefaults;
 
         private const float _threshold = 0.01f;
 
@@ -151,6 +163,8 @@ namespace StarterAssets
 
             AssignAnimationIDs();
 
+            CacheCameraFollowDefaults();
+
             // reset our timeouts on start
             _jumpTimeoutDelta = JumpTimeout;
             _fallTimeoutDelta = FallTimeout;
@@ -168,6 +182,39 @@ namespace StarterAssets
         private void LateUpdate()
         {
             CameraRotation();
+            ScaleCameraFollowWithPlayer();
+        }
+
+        private void CacheCameraFollowDefaults()
+        {
+            _basePlayerScale = Mathf.Max(0.001f, transform.lossyScale.x);
+
+            var follows = FindObjectsByType<CinemachineThirdPersonFollow>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+            if (follows == null || follows.Length == 0)
+            {
+                return;
+            }
+
+            _thirdPersonFollow = follows[0];
+            _baseCameraDistance = _thirdPersonFollow.CameraDistance;
+            _baseVerticalArmLength = _thirdPersonFollow.VerticalArmLength;
+            _baseShoulderOffset = _thirdPersonFollow.ShoulderOffset;
+            _hasCameraFollowDefaults = true;
+        }
+
+        private void ScaleCameraFollowWithPlayer()
+        {
+            if (!ScaleCameraWithPlayer || !_hasCameraFollowDefaults || _thirdPersonFollow == null)
+            {
+                return;
+            }
+
+            float currentScale = Mathf.Max(0.001f, transform.lossyScale.x);
+            float scaleRatio = currentScale / _basePlayerScale;
+
+            _thirdPersonFollow.CameraDistance = _baseCameraDistance * scaleRatio;
+            _thirdPersonFollow.VerticalArmLength = _baseVerticalArmLength * scaleRatio;
+            _thirdPersonFollow.ShoulderOffset = _baseShoulderOffset * scaleRatio;
         }
 
         private void AssignAnimationIDs()

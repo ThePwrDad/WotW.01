@@ -249,7 +249,10 @@ namespace WeightLifter
             if (liftPromptText != null)
             {
                 bool canLift = currentTarget != null && !isActive && stats != null && !stats.isBusy;
-                liftPromptText.text = canLift ? "E for Reps!" : string.Empty;
+                if (canLift)
+                    liftPromptText.text = $"E for Reps! ({currentTarget.weight:F1} lbs)";
+                else
+                    liftPromptText.text = string.Empty;
                 liftPromptText.enabled = canLift;
             }
 

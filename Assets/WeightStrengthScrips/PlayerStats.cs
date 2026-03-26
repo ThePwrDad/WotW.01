@@ -35,6 +35,9 @@ namespace WeightLifter
         // CHANGE: Raised from 3f to 200f to support the intended end-game scale where
         // the player absorbs buildings and very large structures.
         public float maxVisualScale = 200f;
+        [Tooltip("Power applied to the strength ratio to control growth speed. Lower = slower growth. 0.5 = square root, 0.3 = much slower, 1.0 = fully linear.")]
+        [Range(0.1f, 1.0f)]
+        public float scaleExponent = 0.3f;
 
         [Header("Debug")]
         // CHANGE: Added debug flag so scaling logs can be toggled in the Inspector
@@ -160,17 +163,15 @@ namespace WeightLifter
             visualRoot.localScale = new Vector3(s, s, s);
         }
 
-        // CHANGE: Replaced the old per-gain linear scale formula (initialScale * (1 + gain * scalePerStrength))
-        // with a strength-ratio square-root curve. The old formula caused enormous single-frame
-        // jumps when absorbing heavy objects (e.g. a 10,000 weight building would multiply scale
-        // by 11× in one step). The sqrt curve gives dramatic but controlled growth:
-        //   2× strength  → ~1.41× size
-        //   100× strength → 10× size
-        // Clamped by maxVisualScale (200) so progression never becomes unreadable.
+        // CHANGE: Replaced old per-gain linear formula with power-law growth curve (ratio^scaleExponent).
+        // Old formula caused huge single-frame jumps (10,000 weight → 11× scale). Power-law prevents that.
+        // Default exponent 0.3 gives slower, controlled growth: 4× strength → 1.52× size (vs sqrt → 2×).
+        // Examples: 2× strength → ~1.30× size, 100× strength → ~3.98× size.
+        // Clamped by maxVisualScale (200) so progression stays readable.
         private float GetTargetScaleValue()
         {
             float ratio = currentStrength / _initialStrength;
-            float multiplier = Mathf.Sqrt(Mathf.Max(1f, ratio));
+            float multiplier = Mathf.Pow(Mathf.Max(1f, ratio), scaleExponent);
             return Mathf.Min(maxVisualScale, _baseVisualScale.x * multiplier);
         }
 
