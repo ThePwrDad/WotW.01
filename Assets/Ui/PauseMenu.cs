@@ -7,6 +7,11 @@ public class PauseMenuController : MonoBehaviour
     public GameObject pauseMenuUI;
     private bool isPaused = false;
 
+    void Awake()
+    {
+        ResolvePauseMenuUI();
+    }
+
     void Start()
     {
         // Ensure the game starts unpaused and the mouse is hidden
@@ -25,7 +30,11 @@ public class PauseMenuController : MonoBehaviour
 
     public void Resume()
     {
-        pauseMenuUI.SetActive(false);
+        if (pauseMenuUI != null)
+        {
+            pauseMenuUI.SetActive(false);
+        }
+
         Time.timeScale = 1f; // Unfreeze time
         isPaused = false;
 
@@ -36,6 +45,17 @@ public class PauseMenuController : MonoBehaviour
 
     void Pause()
     {
+        if (pauseMenuUI == null)
+        {
+            ResolvePauseMenuUI();
+        }
+
+        if (pauseMenuUI == null)
+        {
+            Debug.LogError("PauseMenuController could not find a pause menu UI GameObject. Assign pauseMenuUI in the inspector or name the panel 'PauseMenuPanel'.", this);
+            return;
+        }
+
         pauseMenuUI.SetActive(true);
         Time.timeScale = 0f; // Freeze time (physics, animations, etc.)
         isPaused = true;
@@ -43,6 +63,34 @@ public class PauseMenuController : MonoBehaviour
         // Unlock and Show Cursor to click buttons
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
+    }
+
+    void ResolvePauseMenuUI()
+    {
+        if (pauseMenuUI != null)
+        {
+            return;
+        }
+
+        Transform directChild = transform.Find("PauseMenuPanel");
+        if (directChild != null)
+        {
+            pauseMenuUI = directChild.gameObject;
+            return;
+        }
+
+        Transform nestedChild = transform.Find("Canvas/PauseMenuPanel");
+        if (nestedChild != null)
+        {
+            pauseMenuUI = nestedChild.gameObject;
+            return;
+        }
+
+        GameObject foundByName = GameObject.Find("PauseMenuPanel");
+        if (foundByName != null)
+        {
+            pauseMenuUI = foundByName;
+        }
     }
 
     public void ResetLevel()
