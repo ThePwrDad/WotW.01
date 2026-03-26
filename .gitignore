@@ -10,6 +10,8 @@
 /[Bb]uilds/
 /[Ll]ogs/
 /[Uu]ser[Ss]ettings/
+# Explicitly ignore per-user Unity editor layouts.
+/UserSettings/Layouts/
 *.log
 
 # MemoryCaptures can get excessive in size.

@@ -6,6 +6,7 @@ public class PauseMenuController : MonoBehaviour
 {
     public GameObject pauseMenuUI;
     private bool isPaused = false;
+    private bool hasValidPauseUI = false;
 
     void Awake()
     {
@@ -14,6 +15,14 @@ public class PauseMenuController : MonoBehaviour
 
     void Start()
     {
+        hasValidPauseUI = EnsurePauseMenuUI();
+        if (!hasValidPauseUI)
+        {
+            Debug.LogWarning("PauseMenuController disabled on this object because no pause menu UI could be resolved.", this);
+            enabled = false;
+            return;
+        }
+
         // Ensure the game starts unpaused and the mouse is hidden
         Resume();
     }
@@ -30,10 +39,9 @@ public class PauseMenuController : MonoBehaviour
 
     public void Resume()
     {
-        if (pauseMenuUI != null)
-        {
-            pauseMenuUI.SetActive(false);
-        }
+        if (!EnsurePauseMenuUI()) return;
+
+        pauseMenuUI.SetActive(false);
 
         Time.timeScale = 1f; // Unfreeze time
         isPaused = false;
@@ -45,16 +53,7 @@ public class PauseMenuController : MonoBehaviour
 
     void Pause()
     {
-        if (pauseMenuUI == null)
-        {
-            ResolvePauseMenuUI();
-        }
-
-        if (pauseMenuUI == null)
-        {
-            Debug.LogError("PauseMenuController could not find a pause menu UI GameObject. Assign pauseMenuUI in the inspector or name the panel 'PauseMenuPanel'.", this);
-            return;
-        }
+        if (!EnsurePauseMenuUI()) return;
 
         pauseMenuUI.SetActive(true);
         Time.timeScale = 0f; // Freeze time (physics, animations, etc.)
@@ -63,6 +62,19 @@ public class PauseMenuController : MonoBehaviour
         // Unlock and Show Cursor to click buttons
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
+    }
+
+    bool EnsurePauseMenuUI()
+    {
+        if (pauseMenuUI != null)
+        {
+            hasValidPauseUI = true;
+            return true;
+        }
+
+        ResolvePauseMenuUI();
+        hasValidPauseUI = pauseMenuUI != null;
+        return hasValidPauseUI;
     }
 
     void ResolvePauseMenuUI()
