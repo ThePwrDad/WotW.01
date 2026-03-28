@@ -1,4 +1,4 @@
-# 🎮 Project Name: WEIGHT of the WORLD
+Project Name: WEIGHT of the WORLD
 
 
 ## Setup (Do this once)
