@@ -51,6 +51,7 @@
   <ItemGroup>
     <Compile Include="Assets\MiniGameScripts\LiftingMiniGame.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_TextEventHandler.cs" />
+    <Compile Include="Assets\LevelFlow\LevelRunFlowController.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\EnvMapAnimator.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_TextSelector_A.cs" />
     <Compile Include="Assets\StarterAssets\Mobile\Scripts\VirtualInputs\UIVirtualTouchZone.cs" />
@@ -58,10 +59,14 @@
     <Compile Include="Assets\WeightStrengthScrips\PlayerStats.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark02.cs" />
     <Compile Include="Assets\StarterAssets\Mobile\Scripts\VirtualInputs\UIVirtualJoystick.cs" />
+    <Compile Include="Assets\LevelFlow\PlayerCameraScaler.cs" />
+    <Compile Include="Assets\Leaderboard\ArcadeLeaderboardService.cs" />
     <Compile Include="Assets\WeightStrengthScrips\LiftingInteraction.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_ExampleScript_01.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMPro_InstructionOverlay.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexShakeB.cs" />
+    <Compile Include="Assets\LevelFlow\LevelFlowConfig.cs" />
+    <Compile Include="Assets\LevelFlow\LevelFlowState.cs" />
     <Compile Include="Assets\Ui\StartMenuController.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexJitter.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_UiFrameRateCounter.cs" />

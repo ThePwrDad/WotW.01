@@ -14,9 +14,14 @@ namespace TMPro.Examples
 
         public Transform CameraTarget;
 
-        public float FollowDistance = 30.0f;
-        public float MaxFollowDistance = 100.0f;
+        // Base follow distance increased by 50% (30 -> 45) to accommodate character scaling
+        private float baseFollowDistance = 45.0f;
+        public float FollowDistance = 45.0f;
+        public float MaxFollowDistance = 150.0f;
         public float MinFollowDistance = 2.0f;
+
+        [Tooltip("How aggressively the camera pulls back as the player grows. 1 = proportional, 2 = twice as fast, etc.")]
+        public float distanceScaleSensitivity = 2.0f;
 
         public float ElevationAngle = 30.0f;
         public float MaxElevationAngle = 85.0f;
@@ -29,6 +34,11 @@ namespace TMPro.Examples
         public bool MovementSmoothing = true;
         public bool RotationSmoothing = false;
         private bool previousSmoothing;
+
+        // Reference to player stats and root transform for scale-aware camera distance
+        private WeightLifter.PlayerStats playerStats;
+        private Transform playerRootTransform;
+        private float initialPlayerScale = 1.0f;
 
         public float MovementSmoothingValue = 25f;
         public float RotationSmoothingValue = 5.0f;
@@ -74,6 +84,19 @@ namespace TMPro.Examples
                 dummyTarget = new GameObject("Camera Target").transform;
                 CameraTarget = dummyTarget;
             }
+
+            // Try to find PlayerStats on CameraTarget, then its parents, then anywhere in the scene
+            playerStats = CameraTarget.GetComponent<WeightLifter.PlayerStats>();
+            if (playerStats == null)
+                playerStats = CameraTarget.GetComponentInParent<WeightLifter.PlayerStats>();
+            if (playerStats == null)
+                playerStats = Object.FindFirstObjectByType<WeightLifter.PlayerStats>();
+
+            if (playerStats != null)
+            {
+                playerRootTransform = playerStats.transform;
+                initialPlayerScale = Mathf.Max(0.001f, playerRootTransform.localScale.x);
+            }
         }
 
         // Update is called once per frame
@@ -81,6 +104,8 @@ namespace TMPro.Examples
         {
             GetPlayerInput();
 
+            // Update follow distance based on player scale
+            UpdateFollowDistanceForScale();
 
             // Check if we still have a valid target
             if (CameraTarget != null)
@@ -121,7 +146,33 @@ namespace TMPro.Examples
 
         }
 
+        void UpdateFollowDistanceForScale()
+        {
+            // Lazy init: try to find player root if we didn't get it in Start
+            if (playerRootTransform == null)
+            {
+                playerStats = Object.FindFirstObjectByType<WeightLifter.PlayerStats>();
+                if (playerStats != null)
+                {
+                    playerRootTransform = playerStats.transform;
+                    initialPlayerScale = Mathf.Max(0.001f, playerRootTransform.localScale.x);
+                }
+                else
+                {
+                    return;
+                }
+            }
 
+            float currentPlayerScale = playerRootTransform.localScale.x;
+            if (initialPlayerScale > 0f)
+            {
+                // scaleRatio grows slowly because PlayerStats uses sqrt curve.
+                // Raising it to distanceScaleSensitivity power makes pullback feel proportional.
+                float scaleRatio = currentPlayerScale / initialPlayerScale;
+                float adjustedRatio = Mathf.Pow(scaleRatio, distanceScaleSensitivity);
+                FollowDistance = Mathf.Clamp(baseFollowDistance * adjustedRatio, MinFollowDistance, MaxFollowDistance);
+            }
+        }
 
         void GetPlayerInput()
         {

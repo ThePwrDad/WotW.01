@@ -512,13 +512,12 @@ namespace WeightLifter
         {
             if (target == null || playerController == null) return false;
 
-            Vector3 worldCenter = transform.TransformPoint(playerController.center);
-            float castRadius = Mathf.Max(0.05f, playerController.radius * 0.9f);
-            float halfHeight = Mathf.Max(playerController.height * 0.5f, playerController.radius);
-            float castDistance = (halfHeight - playerController.radius) + 0.35f;
+            Vector3 footPos = transform.position + Vector3.up * 0.1f; // slightly above the feet to avoid ground detection interfering
+            const float fixedRadius = 0.35f;
+            const float fixedDistance = 0.5f;
 
-            if (Physics.SphereCast(worldCenter + Vector3.up * 0.05f, castRadius, Vector3.down,
-                out RaycastHit hit, castDistance, ~0, QueryTriggerInteraction.Ignore))
+            if (Physics.SphereCast(footPos, fixedRadius, Vector3.down,
+                out RaycastHit hit, fixedDistance, ~0, QueryTriggerInteraction.Ignore))
             {
                 return IsColliderOnTarget(hit.collider, target);
             }
