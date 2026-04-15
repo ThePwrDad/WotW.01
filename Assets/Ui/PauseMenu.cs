@@ -29,6 +29,15 @@ public class PauseMenuController : MonoBehaviour
 
     void Update()
     {
+        if (LevelFlowState.IsPauseBlocked)
+        {
+            if (isPaused)
+            {
+                Resume();
+            }
+            return;
+        }
+
         // Check for Escape key using the New Input System
         if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
         {

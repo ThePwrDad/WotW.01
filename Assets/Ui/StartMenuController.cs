@@ -1,57 +1,102 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UIElements;
 using UnityEngine.InputSystem;
+using TMPro;
+using WotW2.Leaderboard;
 
 public class StartMenuController : MonoBehaviour
 {
     [Header("UI Panels")]
     public GameObject startMenuPanel;
     public GameObject levelSelectionPanel;
+    public GameObject leaderboardPanel;
+
+    [Header("Leaderboard UI")]
+    public TMP_Text leaderboardTitleText;
+    public TMP_Text leaderboardEntriesText;
+    public string selectedLevelKey = "Level 1";
 
     void Start()
     {
         UnityEngine.Cursor.lockState = CursorLockMode.None;
         UnityEngine.Cursor.visible = true;
+
         if (startMenuPanel != null) startMenuPanel.SetActive(true);
         if (levelSelectionPanel != null) levelSelectionPanel.SetActive(false);
-        // Ensure the main panel is active and selection is hidden at the start
-        startMenuPanel.SetActive(true);
-        levelSelectionPanel.SetActive(false);
+        if (leaderboardPanel != null) leaderboardPanel.SetActive(false);
+
+        RefreshLeaderboardPanel();
     }
+
     void Update()
     {
-        if (Keyboard.current.escapeKey.wasPressedThisFrame)
+        if (Keyboard.current == null || !Keyboard.current.escapeKey.wasPressedThisFrame)
         {
-            if (levelSelectionPanel.activeSelf)
-            {
-                CloseLevelSelection();
-            }
+            return;
+        }
+
+        if (leaderboardPanel != null && leaderboardPanel.activeSelf)
+        {
+            CloseLeaderboard();
+            return;
+        }
+
+        if (levelSelectionPanel != null && levelSelectionPanel.activeSelf)
+        {
+            CloseLevelSelection();
         }
     }
 
     // Call this from the "Level Selection" button
     public void OpenLevelSelection()
     {
-        Debug.Log("Button Clicked!");//confirming the button is working in the console
-        if (startMenuPanel != null && levelSelectionPanel != null)
-        {
-            startMenuPanel.SetActive(false);
-            levelSelectionPanel.SetActive(true);
-            Debug.Log("Panels toggled successfully.");
-        }
-        else
-        {
-            Debug.LogError("StartMenuPanel or LevelSelectionPanel is not assigned in the inspector.");
-        }
-        
-        //ThePauseMenuController should have already handled hiding and locking the cursor, but we can ensure it here as well
-        }
+        if (startMenuPanel != null) startMenuPanel.SetActive(false);
+        if (leaderboardPanel != null) leaderboardPanel.SetActive(false);
+        if (levelSelectionPanel != null) levelSelectionPanel.SetActive(true);
+    }
+
     // Call this from a "Back" button inside your Level Selection panel
     public void CloseLevelSelection()
     {
-        levelSelectionPanel.SetActive(false);
-        startMenuPanel.SetActive(true);
+        if (levelSelectionPanel != null) levelSelectionPanel.SetActive(false);
+        if (startMenuPanel != null) startMenuPanel.SetActive(true);
+    }
+
+    public void OpenLeaderboard()
+    {
+        if (startMenuPanel != null) startMenuPanel.SetActive(false);
+        if (levelSelectionPanel != null) levelSelectionPanel.SetActive(false);
+        if (leaderboardPanel != null) leaderboardPanel.SetActive(true);
+        RefreshLeaderboardPanel();
+    }
+
+    public void CloseLeaderboard()
+    {
+        if (leaderboardPanel != null) leaderboardPanel.SetActive(false);
+        if (startMenuPanel != null) startMenuPanel.SetActive(true);
+    }
+
+    public void SetLeaderboardLevelKey(string levelKey)
+    {
+        if (!string.IsNullOrWhiteSpace(levelKey))
+        {
+            selectedLevelKey = levelKey.Trim();
+        }
+
+        RefreshLeaderboardPanel();
+    }
+
+    public void RefreshLeaderboardPanel()
+    {
+        if (leaderboardTitleText != null)
+        {
+            leaderboardTitleText.text = selectedLevelKey + " Top 5";
+        }
+
+        if (leaderboardEntriesText != null)
+        {
+            leaderboardEntriesText.text = ArcadeLeaderboardService.FormatBoardLines(selectedLevelKey);
+        }
     }
 
     // Call this from the "Quit" button
@@ -60,15 +105,13 @@ public class StartMenuController : MonoBehaviour
         Debug.Log("Quitting Game...");
         Application.Quit();
     }
-    // Add this inside the StartMenuController class
-public void LoadSpecificLevel(string sceneName)
-{
-    // It's good practice to ensure time is unpaused when switching scenes
-    Time.timeScale = 1f; 
-    //hide and lock the cursor before the new scene loads
-    UnityEngine.Cursor.visible = false;
-    UnityEngine.Cursor.lockState = CursorLockMode.Locked;
-    
-    SceneManager.LoadScene(sceneName);
-}
+
+    public void LoadSpecificLevel(string sceneName)
+    {
+        Time.timeScale = 1f;
+        UnityEngine.Cursor.visible = false;
+        UnityEngine.Cursor.lockState = CursorLockMode.Locked;
+
+        SceneManager.LoadScene(sceneName);
+    }
 }
