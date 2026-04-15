@@ -25,7 +25,7 @@ To avoid "Merge Conflicts" (where Git gets confused by our changes), always foll
 
 ### 3. Making Changes (Unity)
 *   Open the project in Unity.
-*   **The Golden Rule:** Only one person should edit a specific `.unity` Scene file at a time. If we both move objects in "Level_01" at once, Git will break!
+*   **The Golden Rule:** Only one person should edit a specific `.unity` Scene file at a time. If we both move objects in "Level 1" at once, Git will break!
 *   Save your Scene (`Ctrl+S`) and Project often.
 
 ### 4. Saving & Uploading (Commit & Push)
