@@ -1037,6 +1037,11 @@ GameObject:
   - component: {fileID: 5885216827943657505}
   - component: {fileID: 135756642000475821}
   - component: {fileID: 4416926081852918493}
+  - component: {fileID: 6690165286309751523}
+  - component: {fileID: 1270961784801274169}
+  - component: {fileID: 8612895315752925641}
+  - component: {fileID: 2077352830510017318}
+  - component: {fileID: 5895049317242359199}
   m_Layer: 8
   m_Name: PlayerArmature
   m_TagString: Player
@@ -1121,8 +1126,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26e54e5a728a9234ab24fcf1460ed8a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MoveSpeed: 2
-  SprintSpeed: 5.335
+  MoveSpeed: 5
+  SprintSpeed: 10
   RotationSmoothTime: 0.12
   SpeedChangeRate: 10
   LandingAudioClip: {fileID: 8300000, guid: ff697d3070687ce4583faa0561a145a2, type: 3}
@@ -1287,6 +1292,126 @@ MonoBehaviour:
   m_DefaultActionMap: Player
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
+--- !u!114 &6690165286309751523
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4416926081852918481}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4aa966a6180cd6f4ab7ef4bad363fae3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerStats
+  currentStrength: 15
+  isBusy: 0
+  strengthGainMultiplier: 0.1
+  visualRoot: {fileID: 0}
+  modelRoot: {fileID: 0}
+  absorbDuration: 0.6
+  maxVisualScale: 200
+  debugScalingLogs: 1
+  functionalScaleFactor: 1
+--- !u!114 &1270961784801274169
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4416926081852918481}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a11179ec7cafba142959c55618b55679, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LiftingInteraction
+  enableProximityFallback: 1
+  fallbackScanInterval: 0.12
+  fallbackBaseRadius: 2.25
+  fallbackRadiusPerScale: 0.08
+  fallbackMaxRadius: 16
+  fallbackOriginHeight: 0.9
+  debugLiftDetection: 1
+  debugVerboseMisses: 1
+--- !u!54 &8612895315752925641
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4416926081852918481}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 10
+  m_AngularDamping: 10
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 14
+  m_CollisionDetection: 0
+--- !u!135 &2077352830510017318
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4416926081852918481}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.75
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &5895049317242359199
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4416926081852918481}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5172dc557c485934cadf157ca6ee61d1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WeightLifter.LiftingMiniGame
+  miniGameUI: {fileID: 0}
+  contextUI: {fileID: 0}
+  progressBar: {fileID: 0}
+  holdStartAnchor: {fileID: 0}
+  holdChestAnchor: {fileID: 0}
+  holdFollowSpeed: 18
+  dropForwardDistance: 1.1
+  dropUpOffset: 0.45
+  dropIgnoreCollisionSeconds: 0.35
+  swolScoreText: {fileID: 0}
+  gainsText: {fileID: 0}
+  liftPromptText: {fileID: 0}
+  heavyLiftMessageText: {fileID: 0}
+  drainSpeed: 0.2
+  clickPower: 0.15
+  movementLockWeightRatio: 0.35
+  maxWeightMultiplier: 1.5
+  gainsDisplaySeconds: 2
+  heavyLiftMessage: Heavy Object! Keeping Good Form..
 --- !u!1 &4523139366846529165
 GameObject:
   m_ObjectHideFlags: 0
