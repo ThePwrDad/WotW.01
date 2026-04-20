@@ -2,9 +2,6 @@ using System.Collections;
 using UnityEngine;
 using StarterAssets;
 
-// CHANGE: Added StarterAssets using directive so we can access ThirdPersonController
-// and wire functional scaling into the same controller that already drives the character.
-
 namespace WeightLifter
 {
     public class PlayerStats : MonoBehaviour
@@ -16,12 +13,10 @@ namespace WeightLifter
         [Header("Settings")]
         public float strengthGainMultiplier = 0.1f;
 
-        // CHANGE: visualRoot is the player root transform for persistent scaling.
-        // modelRoot is the visible rig child used only as the absorb fly-to target.
         [Header("Visuals")]
-        [Tooltip("Leave empty; root transform is used for scaling.")]
+        [Tooltip("Leave empty to scale the player root. Root scaling stays stable even when the animator updates the rig.")]
         public Transform visualRoot;
-        [Tooltip("Optional rig/model target for absorb fly-to visuals.")]
+        [Tooltip("Optional rig/model target used as the absorb fly-to destination.")]
         public Transform modelRoot;
         public float absorbDuration = 0.6f;
         public float maxVisualScale = 200f;
@@ -30,7 +25,7 @@ namespace WeightLifter
         public bool debugScalingLogs = false;
 
         [Header("Functional Scaling")]
-        [Tooltip("Scale factor applied to movement stats and collider. 1 = fully proportional to visual size.")]
+        [Tooltip("Multiplier applied to gameplay scaling. Visual growth still comes from strength; this tunes how strongly movement and controller sizing follow it.")]
         public float functionalScaleFactor = 1f;
 
         private float _initialStrength;
@@ -119,9 +114,10 @@ namespace WeightLifter
             visualRoot.localScale = new Vector3(s, s, s);
         }
 
-        // CHANGE: Use a square-root curve so growth stays dramatic but controlled.
         private float GetTargetScaleValue()
         {
+            // Strength can grow very quickly, so use a square-root curve to keep the
+            // player feeling larger without making scale explode too early in a run.
             float ratio = currentStrength / _initialStrength;
             float multiplier = Mathf.Sqrt(Mathf.Max(1f, ratio));
             return Mathf.Min(maxVisualScale, _baseVisualScale.x * multiplier);
@@ -141,28 +137,34 @@ namespace WeightLifter
             }
         }
 
-        // CHANGE: Keep CharacterController and ThirdPersonController proportional to visual size.
         private void UpdateFunctionalScale()
         {
             if (visualRoot == null || _baseVisualScale.x <= 0f) return;
 
-            float scaleRatio = (visualRoot.localScale.x / _baseVisualScale.x) * functionalScaleFactor;
+            float visualScaleRatio = visualRoot.localScale.x / _baseVisualScale.x;
+            float clampedFunctionalFactor = Mathf.Max(0.1f, functionalScaleFactor);
 
             if (_cc != null)
             {
-                _cc.height = _baseCCHeight * scaleRatio;
-                _cc.radius = _baseCCRadius * scaleRatio;
-                _cc.center = _baseCCCenter * scaleRatio;
-                _cc.stepOffset = _baseCCStepOffset * scaleRatio;
+                // CharacterController values are local-space. Because the player root is already
+                // scaled visually, reapplying visualScaleRatio here would create an oversized
+                // invisible collision shell in world-space.
+                _cc.height = _baseCCHeight * clampedFunctionalFactor;
+                _cc.radius = _baseCCRadius * clampedFunctionalFactor;
+                _cc.center = _baseCCCenter * clampedFunctionalFactor;
+                _cc.stepOffset = _baseCCStepOffset * clampedFunctionalFactor;
             }
 
             if (_tpc != null)
             {
-                _tpc.MoveSpeed = _baseMoveSpeed * scaleRatio;
-                _tpc.SprintSpeed = _baseSprintSpeed * scaleRatio;
-                _tpc.JumpHeight = _baseJumpHeight * scaleRatio;
-                _tpc.GroundedOffset = _baseGroundedOffset * scaleRatio;
-                _tpc.GroundedRadius = _baseGroundedRadius * scaleRatio;
+                // Movement and grounded probes should still feel proportional to the visible
+                // body size, so they intentionally follow visual growth.
+                float movementScale = visualScaleRatio * clampedFunctionalFactor;
+                _tpc.MoveSpeed = _baseMoveSpeed * movementScale;
+                _tpc.SprintSpeed = _baseSprintSpeed * movementScale;
+                _tpc.JumpHeight = _baseJumpHeight * movementScale;
+                _tpc.GroundedOffset = _baseGroundedOffset * movementScale;
+                _tpc.GroundedRadius = _baseGroundedRadius * movementScale;
             }
         }
 
