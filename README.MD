@@ -1,5 +1,6 @@
 Project Name: WEIGHT of the WORLD
 
+The purpose of this branch is to get sprint absorb destroy working afterwich it will be culled
 
 ## Setup (Do this once)
 1. **GitHub Desktop:** Download and sign in to the [GitHub Desktop App](https://desktop.github.com).
