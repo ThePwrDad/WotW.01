@@ -42,12 +42,9 @@ namespace WeightLifter
         public float clickPower = 0.15f;
         [Tooltip("If object weight / player strength is above this ratio, movement is locked while lifting.")]
         [Range(0f, 1f)] public float movementLockWeightRatio = 0.35f;
-        // CHANGE: Raised from 1.5 to 3.0. The original cap meant objects heavier than
-        // 1.5x the player's strength were silently unliftable with no feedback. Raising
-        // it to 3x supports the intended design of absorbing progressively larger objects.
-        // The dynamic difficulty system (weightRatio) already makes heavier objects harder
-        // to lift via faster drain and reduced click power, so no separate difficulty cap
-        // is needed at this multiplier.
+        // Heavier objects are already self-balancing through drain speed and click power, so
+        // this multiplier stays generous and lets difficulty come from the minigame instead of
+        // an early hidden cap on what can be attempted.
         public float maxWeightMultiplier = 3f;
 
         [Header("Timing")]
@@ -141,19 +138,19 @@ namespace WeightLifter
                 GrabTarget(currentTarget);
                 SetMiniGameVisualsActive(true);
                 if (progressBar != null) progressBar.value = 0.2f;
-                // --- DYNAMIC DIFFICULTY CALCULATION ---
-                // Prevent divide-by-zero just in case strength is 0
+                // Difficulty is driven by the weight-to-strength ratio so one system controls
+                // both lift eligibility and how demanding the current rep sequence feels.
                 float safeStrength = Mathf.Max(0.1f, stats.currentStrength); 
                 float weightRatio = currentTarget.weight / safeStrength;
 
                 lockMovementForCurrentLift = weightRatio > movementLockWeightRatio;
                 SetMovementLock(lockMovementForCurrentLift);
 
-                // Light objects = huge click power. Heavy objects = weak click power.
-                // Clamped to 1f so super light objects can be 1-clicked, but don't break the UI.
+                // Lighter objects can be finished quickly. Heavier objects still remain liftable,
+                // but ask for more sustained input.
                 currentClickPower = Mathf.Clamp(clickPower / Mathf.Max(0.01f, weightRatio), 0f, 1f); 
 
-                // Heavy objects drain faster, light objects drain slower.
+                // Drain scales in the opposite direction so heavy lifts naturally feel less stable.
                 currentDrainSpeed = drainSpeed * weightRatio;
             }
             
@@ -182,14 +179,9 @@ namespace WeightLifter
             consecutiveFailedLifts = 0;
             isActive = false;
             SetMovementLock(false);
-            // CHANGE: Removed stats.isBusy = false from here. Previously this cleared isBusy
-            // before AbsorbRoutine even started (StartCoroutine queues the coroutine for next
-            // frame), meaning isBusy was effectively false during the absorb animation and
-            // objects entering the trigger zone during that window were never registered.
-            // Ownership of isBusy=false now belongs exclusively to PlayerStats.AbsorbRoutine,
-            // which clears it at the true end of the absorb animation, then immediately calls
-            // RescanOverlapping to catch anything that was missed.
-            // Busy flag is cleared in PlayerStats when absorb animation finishes.
+            // The absorb animation owns the busy state from here until the object is fully consumed.
+            // Releasing the busy flag early lets triggers churn during the fly-in animation and can
+            // leave nearby liftables undiscovered.
             SetMiniGameVisualsActive(false);
             FinalizeHeldForAbsorb();
 
@@ -512,12 +504,22 @@ namespace WeightLifter
         {
             if (target == null || playerController == null) return false;
 
-            Vector3 footPos = transform.position + Vector3.up * 0.1f; // slightly above the feet to avoid ground detection interfering
-            const float fixedRadius = 0.35f;
-            const float fixedDistance = 0.5f;
+            Bounds b = playerController.bounds;
+            Vector3 footCenter = new Vector3(b.center.x, b.min.y + 0.06f, b.center.z);
 
-            if (Physics.SphereCast(footPos, fixedRadius, Vector3.down,
-                out RaycastHit hit, fixedDistance, ~0, QueryTriggerInteraction.Ignore))
+            // Keep this probe short and narrow so nearby side faces do not count as "standing on"
+            // the target once the player's body becomes much larger.
+            float rayDistance = Mathf.Max(0.2f, playerController.stepOffset * 0.35f + 0.12f);
+            if (Physics.Raycast(footCenter, Vector3.down,
+                out RaycastHit hit, rayDistance, ~0, QueryTriggerInteraction.Ignore))
+            {
+                return IsColliderOnTarget(hit.collider, target);
+            }
+
+            float sphereRadius = Mathf.Clamp(playerController.radius * 0.2f, 0.08f, 0.22f);
+            Vector3 sphereStart = footCenter + Vector3.up * 0.04f;
+            if (Physics.SphereCast(sphereStart, sphereRadius, Vector3.down,
+                out hit, rayDistance, ~0, QueryTriggerInteraction.Ignore))
             {
                 return IsColliderOnTarget(hit.collider, target);
             }

@@ -5,8 +5,19 @@ using UnityEngine.InputSystem; // Using the New Input System!
 public class PauseMenuController : MonoBehaviour
 {
     public GameObject pauseMenuUI;
+    [Tooltip("If true, logs a warning when no pause menu panel can be found in the scene.")]
+    public bool logMissingPauseMenuWarning = false;
+
     private bool isPaused = false;
     private bool hasValidPauseUI = false;
+    private bool loggedMissingPauseUIWarning = false;
+
+    private static readonly string[] PausePanelNames =
+    {
+        "PauseMenuPanel",
+        "PauseMenu",
+        "Pause Panel"
+    };
 
     void Awake()
     {
@@ -16,12 +27,6 @@ public class PauseMenuController : MonoBehaviour
     void Start()
     {
         hasValidPauseUI = EnsurePauseMenuUI();
-        if (!hasValidPauseUI)
-        {
-            Debug.LogWarning("PauseMenuController disabled on this object because no pause menu UI could be resolved.", this);
-            enabled = false;
-            return;
-        }
 
         // Ensure the game starts unpaused and the mouse is hidden
         Resume();
@@ -29,6 +34,12 @@ public class PauseMenuController : MonoBehaviour
 
     void Update()
     {
+        if (!hasValidPauseUI)
+        {
+            hasValidPauseUI = EnsurePauseMenuUI();
+            if (!hasValidPauseUI) return;
+        }
+
         if (LevelFlowState.IsPauseBlocked)
         {
             if (isPaused)
@@ -77,12 +88,20 @@ public class PauseMenuController : MonoBehaviour
     {
         if (pauseMenuUI != null)
         {
+            loggedMissingPauseUIWarning = false;
             hasValidPauseUI = true;
             return true;
         }
 
         ResolvePauseMenuUI();
         hasValidPauseUI = pauseMenuUI != null;
+
+        if (!hasValidPauseUI && logMissingPauseMenuWarning && !loggedMissingPauseUIWarning)
+        {
+            Debug.LogWarning("PauseMenuController could not resolve a pause menu UI in this scene.", this);
+            loggedMissingPauseUIWarning = true;
+        }
+
         return hasValidPauseUI;
     }
 
@@ -93,25 +112,56 @@ public class PauseMenuController : MonoBehaviour
             return;
         }
 
-        Transform directChild = transform.Find("PauseMenuPanel");
-        if (directChild != null)
+        // Scene setups vary between levels and prefabs, so pause UI resolution checks the local
+        // hierarchy first, then the active scene, then a simple name lookup as a final fallback.
+        Transform localMatch = FindNamedDescendant(transform);
+        if (localMatch != null)
         {
-            pauseMenuUI = directChild.gameObject;
+            pauseMenuUI = localMatch.gameObject;
             return;
         }
 
-        Transform nestedChild = transform.Find("Canvas/PauseMenuPanel");
-        if (nestedChild != null)
+        GameObject[] roots = SceneManager.GetActiveScene().GetRootGameObjects();
+        for (int i = 0; i < roots.Length; i++)
         {
-            pauseMenuUI = nestedChild.gameObject;
-            return;
+            Transform sceneMatch = FindNamedDescendant(roots[i].transform);
+            if (sceneMatch != null)
+            {
+                pauseMenuUI = sceneMatch.gameObject;
+                return;
+            }
         }
 
-        GameObject foundByName = GameObject.Find("PauseMenuPanel");
-        if (foundByName != null)
+        for (int i = 0; i < PausePanelNames.Length; i++)
         {
-            pauseMenuUI = foundByName;
+            GameObject foundByName = GameObject.Find(PausePanelNames[i]);
+            if (foundByName != null)
+            {
+                pauseMenuUI = foundByName;
+                return;
+            }
         }
+    }
+
+    private static Transform FindNamedDescendant(Transform root)
+    {
+        if (root == null) return null;
+
+        for (int i = 0; i < PausePanelNames.Length; i++)
+        {
+            if (root.name == PausePanelNames[i])
+                return root;
+        }
+
+        for (int i = 0; i < root.childCount; i++)
+        {
+            Transform child = root.GetChild(i);
+            Transform found = FindNamedDescendant(child);
+            if (found != null)
+                return found;
+        }
+
+        return null;
     }
 
     public void ResetLevel()
