@@ -126,4 +126,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09ac2a2b6fedc8e4c82c3d63c17efb73, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WeightData
-  weight: 10
+  weight: 200000
