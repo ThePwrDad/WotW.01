@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 2300000}
   - component: {fileID: -1624182814741204372}
   - component: {fileID: -4950301502283536656}
+  - component: {fileID: 4473425120113738475}
   m_Layer: 0
   m_Name: Vehicle_Container_color03
   m_TagString: Untagged
@@ -127,3 +128,42 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WeightData
   weight: 8000
+--- !u!114 &4473425120113738475
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88c01c208fe74764a83a739f6c71136a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SBS.ME.MeshExploder
+  explodeNOW: 0
+  recalculteNormals: 1
+  recalculateTangents: 0
+  recalculateBounds: 0
+  createGameObjects: 0
+  probabilityOfCreatingAnObject: 1
+  colliderAttached: 1
+  useNormalsAsExplosionDirection: 0
+  explosionOrigin: 0
+  ExplosionOffset: {x: 0, y: 0, z: 0}
+  normalizeDirection: 1
+  explosionInitSpeed: 1
+  gravity: {x: 0, y: 0, z: 0}
+  friction: 0.99
+  doubleSided: 1
+  flipSideDistance: 0.001
+  explosionTime: 1
+  destroyObjectAfterExplosion: 1
+  onExplosionStarted:
+    m_PersistentCalls:
+      m_Calls: []
+  onPartsCreated:
+    m_PersistentCalls:
+      m_Calls: []
+  onExplosionFinished:
+    m_PersistentCalls:
+      m_Calls: []
