@@ -567,6 +567,7 @@ namespace WeightLifter
             CompleteLift();
             //Trigger Explosion
             hit.collider.GetComponent<MeshExploder>().EXPLODE();
+            hit.collider.GetComponent<MeshCollider>().enabled = false;
         }
     }
 }
