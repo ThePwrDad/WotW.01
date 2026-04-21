@@ -4,6 +4,8 @@ using UnityEngine.UI;
 using TMPro;
 using StarterAssets;
 using System.Collections;
+using SBS.ME;
+
 
 namespace WeightLifter
 {
@@ -79,6 +81,8 @@ namespace WeightLifter
         private Collider[] playerColliders;
         private CharacterController playerController;
         private bool useRightHand = true;
+        private bool isSprinting;
+        public MeshExploder meshExploder;
 
         public void SetCurrentTarget(WeightData target)
         {
@@ -104,7 +108,7 @@ namespace WeightLifter
             movementController = GetComponent<ThirdPersonController>();
             playerColliders = GetComponentsInChildren<Collider>();
             playerController = GetComponent<CharacterController>();
-
+            meshExploder = GetComponent<MeshExploder>();
             // If contextUI is nested inside miniGameUI, toggling the container would hide
             // the prompt/score, so we disable that toggle. Both layouts are supported.
             if (miniGameUI != null && contextUI != null && contextUI.transform.IsChildOf(miniGameUI.transform))
@@ -125,6 +129,8 @@ namespace WeightLifter
 
         private void Update()
         {
+            isSprinting = Keyboard.current != null && Keyboard.current.leftShiftKey.isPressed && playerController != null && playerController.velocity.magnitude > 2f;
+
             RefreshContextUI();
 
             bool standingOnCurrentTarget = currentTarget != null && IsStandingOnTarget(currentTarget);
@@ -539,6 +545,28 @@ namespace WeightLifter
 
             WeightData fromChild = collider.GetComponentInChildren<WeightData>();
             return fromChild == target;
+        }
+
+        private void OnControllerColliderHit(ControllerColliderHit hit)
+        {
+            if (isActive || stats == null || !isSprinting) return;
+
+            WeightData wd = hit.collider.GetComponent<WeightData>();
+            if (wd == null) wd = hit.collider.GetComponentInParent<WeightData>();
+            if (wd == null) wd = hit.collider.GetComponentInChildren<WeightData>();
+            if (wd == null) return;
+
+            float maxLift = stats.currentStrength * maxWeightMultiplier;
+            if (maxLift < 5f * wd.weight) return;
+
+            // Instant complete the lift
+            currentTarget = wd;
+            GrabTarget(wd);
+            isActive = true;
+            stats.isBusy = true;
+            CompleteLift();
+            //Trigger Explosion
+            hit.collider.GetComponent<MeshExploder>().EXPLODE();
         }
     }
 }
