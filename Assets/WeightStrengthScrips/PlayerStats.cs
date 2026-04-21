@@ -174,12 +174,34 @@ namespace WeightLifter
             currentStrength += gain;
             ApplyCurrentStrengthScaleInstant();
 
-            Debug.Log($"<color=green>STRENGTH UP!</color> Gained: {gain}. New Total: {currentStrength}");
+            if (debugScalingLogs)
+                Debug.Log($"<color=green>STRENGTH UP!</color> Gained: {gain}. New Total: {currentStrength}");
         }
 
         public void AbsorbObject(GameObject obj, float objectWeight)
         {
             StartCoroutine(AbsorbRoutine(obj, objectWeight));
+        }
+
+        public void AbsorbObjectInstant(GameObject obj, float objectWeight, bool rescanOverlapping = true)
+        {
+            float gain = objectWeight * strengthGainMultiplier;
+            currentStrength += gain;
+            ApplyCurrentStrengthScaleInstant();
+
+            if (obj != null)
+                Destroy(obj);
+
+            if (debugScalingLogs)
+                Debug.Log($"<color=green>STRENGTH UP!</color> Gained: {gain}. New Total: {currentStrength}");
+
+            isBusy = false;
+
+            if (rescanOverlapping)
+            {
+                var interaction = GetComponent<LiftingInteraction>();
+                if (interaction != null) interaction.RescanOverlapping();
+            }
         }
 
         private IEnumerator AbsorbRoutine(GameObject obj, float objectWeight)
@@ -190,7 +212,8 @@ namespace WeightLifter
             if (obj == null)
             {
                 ApplyCurrentStrengthScaleInstant();
-                Debug.Log($"<color=green>STRENGTH UP!</color> Gained: {gain}. New Total: {currentStrength}");
+                if (debugScalingLogs)
+                    Debug.Log($"<color=green>STRENGTH UP!</color> Gained: {gain}. New Total: {currentStrength}");
                 yield break;
             }
 
@@ -234,7 +257,8 @@ namespace WeightLifter
             _currentTargetScaleValue = targetScaleValue;
             UpdateFunctionalScale();
 
-            Debug.Log($"<color=green>STRENGTH UP!</color> Gained: {gain}. New Total: {currentStrength}");
+            if (debugScalingLogs)
+                Debug.Log($"<color=green>STRENGTH UP!</color> Gained: {gain}. New Total: {currentStrength}");
 
             isBusy = false;
 

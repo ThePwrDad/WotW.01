@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using TMPro;
 using StarterAssets;
 using System.Collections;
+using System.Collections.Generic;
 using SBS.ME;
 
 
@@ -44,6 +45,8 @@ namespace WeightLifter
         public float clickPower = 0.15f;
         [Tooltip("If object weight / player strength is above this ratio, movement is locked while lifting.")]
         [Range(0f, 1f)] public float movementLockWeightRatio = 0.35f;
+        [Tooltip("Objects at or below this fraction of current strength are auto-absorbed when sprinting into them.")]
+        [Range(0.05f, 2f)] public float sprintAutoAbsorbWeightRatio = 0.6f;
         // Heavier objects are already self-balancing through drain speed and click power, so
         // this multiplier stays generous and lets difficulty come from the minigame instead of
         // an early hidden cap on what can be attempted.
@@ -51,6 +54,8 @@ namespace WeightLifter
 
         [Header("Timing")]
         public float gainsDisplaySeconds = 2f;
+        [Tooltip("How long the broken visual gets to read before the object starts flying into the player.")]
+        public float sprintBreakVisualDelay = 0.08f;
 
         [Header("Messaging")]
         public string heavyLiftMessage = "Heavy Object, Keeping good Form";
@@ -82,7 +87,7 @@ namespace WeightLifter
         private CharacterController playerController;
         private bool useRightHand = true;
         private bool isSprinting;
-        public MeshExploder meshExploder;
+        private readonly HashSet<int> sprintAbsorbInFlight = new HashSet<int>();
 
         public void SetCurrentTarget(WeightData target)
         {
@@ -108,7 +113,6 @@ namespace WeightLifter
             movementController = GetComponent<ThirdPersonController>();
             playerColliders = GetComponentsInChildren<Collider>();
             playerController = GetComponent<CharacterController>();
-            meshExploder = GetComponent<MeshExploder>();
             // If contextUI is nested inside miniGameUI, toggling the container would hide
             // the prompt/score, so we disable that toggle. Both layouts are supported.
             if (miniGameUI != null && contextUI != null && contextUI.transform.IsChildOf(miniGameUI.transform))
@@ -565,27 +569,93 @@ namespace WeightLifter
             if (wd == null) wd = hitCollider.GetComponentInChildren<WeightData>();
             if (wd == null) return;
 
-            float maxLift = stats.currentStrength * maxWeightMultiplier;
-            if (maxLift < 5f * wd.weight) return;
+            if (wd.weight > stats.currentStrength * sprintAutoAbsorbWeightRatio) return;
 
-            // Instant complete the lift
-            currentTarget = wd;
-            GrabTarget(wd);
-            isActive = true;
+            int targetId = wd.GetInstanceID();
+            if (!sprintAbsorbInFlight.Add(targetId)) return;
+
+            StartCoroutine(SprintSmashAbsorbRoutine(wd, hitCollider, targetId));
+        }
+
+        private IEnumerator SprintSmashAbsorbRoutine(WeightData target, Collider hitCollider, int targetId)
+        {
+            if (target == null || stats == null)
+            {
+                sprintAbsorbInFlight.Remove(targetId);
+                yield break;
+            }
+
+            isActive = false;
             stats.isBusy = true;
-            CompleteLift();
+            SetMovementLock(false);
+            SetMiniGameVisualsActive(false);
 
-            MeshExploder exploder = hitCollider.GetComponent<MeshExploder>();
+            currentTarget = null;
+            RefreshContextUI();
+
+            Rigidbody targetBody = target.GetComponent<Rigidbody>();
+            if (targetBody != null)
+            {
+                if (!targetBody.isKinematic)
+                {
+                    targetBody.linearVelocity = Vector3.zero;
+                    targetBody.angularVelocity = Vector3.zero;
+                }
+
+                targetBody.isKinematic = true;
+                targetBody.useGravity = false;
+            }
+
+            Collider[] targetColliders = target.GetComponentsInChildren<Collider>();
+            for (int i = 0; i < targetColliders.Length; i++)
+            {
+                if (targetColliders[i] != null)
+                    targetColliders[i].enabled = false;
+            }
+
+            MeshExploder exploder = ResolveMeshExploder(target, hitCollider);
             if (exploder != null)
             {
+                exploder.createGameObjects = false;
+                exploder.destroyObjectAfterExplosion = false;
                 exploder.EXPLODE();
             }
 
-            MeshCollider meshCollider = hitCollider.GetComponent<MeshCollider>();
-            if (meshCollider != null)
+            if (sprintBreakVisualDelay > 0f)
+                yield return new WaitForSeconds(sprintBreakVisualDelay);
+
+            float gain = target.weight * stats.strengthGainMultiplier;
+            stats.AbsorbObject(target.gameObject, target.weight);
+
+            if (gainsText != null)
             {
-                meshCollider.enabled = false;
+                gainsText.text = $"SMASH! +{gain:F1}";
+                gainsText.enabled = true;
+                showingRecentGain = true;
+                CancelInvoke(nameof(HideGainsText));
+                Invoke(nameof(HideGainsText), gainsDisplaySeconds);
             }
+
+            RefreshContextUI();
+            sprintAbsorbInFlight.Remove(targetId);
+        }
+
+        private static MeshExploder ResolveMeshExploder(WeightData target, Collider hitCollider)
+        {
+            if (target == null) return null;
+
+            MeshExploder exploder = target.GetComponent<MeshExploder>();
+            if (exploder != null) return exploder;
+
+            exploder = target.GetComponentInChildren<MeshExploder>();
+            if (exploder != null) return exploder;
+
+            if (hitCollider == null) return null;
+
+            exploder = hitCollider.GetComponent<MeshExploder>();
+            if (exploder != null) return exploder;
+
+            return hitCollider.GetComponentInParent<MeshExploder>();
         }
     }
 }
