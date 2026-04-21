@@ -315,8 +315,14 @@ namespace WeightLifter
             {
                 heldBodyWasKinematic = heldBody.isKinematic;
                 heldBodyUsedGravity = heldBody.useGravity;
-                heldBody.linearVelocity = Vector3.zero;
-                heldBody.angularVelocity = Vector3.zero;
+
+                // Unity warns when setting velocity on kinematic bodies.
+                if (!heldBodyWasKinematic)
+                {
+                    heldBody.linearVelocity = Vector3.zero;
+                    heldBody.angularVelocity = Vector3.zero;
+                }
+
                 heldBody.isKinematic = true;
                 heldBody.useGravity = false;
             }
@@ -551,9 +557,12 @@ namespace WeightLifter
         {
             if (isActive || stats == null || !isSprinting) return;
 
-            WeightData wd = hit.collider.GetComponent<WeightData>();
-            if (wd == null) wd = hit.collider.GetComponentInParent<WeightData>();
-            if (wd == null) wd = hit.collider.GetComponentInChildren<WeightData>();
+            Collider hitCollider = hit.collider;
+            if (hitCollider == null) return;
+
+            WeightData wd = hitCollider.GetComponent<WeightData>();
+            if (wd == null) wd = hitCollider.GetComponentInParent<WeightData>();
+            if (wd == null) wd = hitCollider.GetComponentInChildren<WeightData>();
             if (wd == null) return;
 
             float maxLift = stats.currentStrength * maxWeightMultiplier;
@@ -565,9 +574,18 @@ namespace WeightLifter
             isActive = true;
             stats.isBusy = true;
             CompleteLift();
-            //Trigger Explosion
-            hit.collider.GetComponent<MeshExploder>().EXPLODE();
-            hit.collider.GetComponent<MeshCollider>().enabled = false;
+
+            MeshExploder exploder = hitCollider.GetComponent<MeshExploder>();
+            if (exploder != null)
+            {
+                exploder.EXPLODE();
+            }
+
+            MeshCollider meshCollider = hitCollider.GetComponent<MeshCollider>();
+            if (meshCollider != null)
+            {
+                meshCollider.enabled = false;
+            }
         }
     }
 }
