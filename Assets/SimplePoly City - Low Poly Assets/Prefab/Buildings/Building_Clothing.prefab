@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 731547385221875060}
   - component: {fileID: -6689520690474236386}
   - component: {fileID: -7065966543601027521}
+  - component: {fileID: 5379688975237513019}
   m_Layer: 0
   m_Name: Building_Clothing
   m_TagString: Untagged
@@ -164,5 +165,28 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 12.126186, y: 11.605602, z: 12.155823}
-  m_Center: {x: 0.08278918, y: 5.803236, z: 0.03450966}
+  m_Size: {x: 11.351816, y: 10.965193, z: 11.543195}
+  m_Center: {x: -0.30439568, y: 5.4830313, z: -0.27180433}
+--- !u!136 &5379688975237513019
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100000}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 2.71
+  m_Height: 12.582693
+  m_Direction: 1
+  m_Center: {x: 2.7, y: 5.2749414, z: 2.7}

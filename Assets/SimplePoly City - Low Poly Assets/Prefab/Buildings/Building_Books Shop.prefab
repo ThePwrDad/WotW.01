@@ -14,6 +14,8 @@ GameObject:
   - component: {fileID: -1992667741961775182}
   - component: {fileID: -8339647650261473410}
   - component: {fileID: 5712419224616086673}
+  - component: {fileID: 3607400916415114969}
+  - component: {fileID: 6394201686238652384}
   m_Layer: 0
   m_Name: Building_Books Shop
   m_TagString: Untagged
@@ -164,5 +166,47 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 12.039232, y: 8.357073, z: 12.035599}
-  m_Center: {x: 0.50256443, y: 4.1785803, z: 0.50646067}
+  m_Size: {x: 7.7836494, y: 8.357073, z: 11.247877}
+  m_Center: {x: -1.625227, y: 4.1785803, z: 0.11259961}
+--- !u!65 &3607400916415114969
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100000}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 11.231211, y: 8.357073, z: 7.92237}
+  m_Center: {x: 0.09855366, y: 4.1785803, z: -1.5501534}
+--- !u!65 &6394201686238652384
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100000}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 9.447538, y: 8.357073, z: 9.832687}
+  m_Center: {x: -0.7932825, y: 4.1785803, z: -0.59499574}
