@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: -3770358340190696141}
   - component: {fileID: 8600329796864830042}
   - component: {fileID: 2813923485348201698}
+  - component: {fileID: 2359415091306067635}
   m_Layer: 0
   m_Name: Building_Residential_color03
   m_TagString: Untagged
@@ -164,5 +165,26 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 16.229427, y: 19.239717, z: 12.664908}
-  m_Center: {x: -0.00013637543, y: 9.619859, z: 0.05764866}
+  m_Size: {x: 16.229427, y: 19.239717, z: 11.156507}
+  m_Center: {x: -0.00013637543, y: 9.619859, z: -0.69655275}
+--- !u!65 &2359415091306067635
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100000}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 13.857241, y: 14.066673, z: 1.7444005}
+  m_Center: {x: -0.046668053, y: 11.054613, z: 5.5179033}

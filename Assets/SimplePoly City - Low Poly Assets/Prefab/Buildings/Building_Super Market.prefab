@@ -14,6 +14,9 @@ GameObject:
   - component: {fileID: 820945192706761855}
   - component: {fileID: -8015901504903204889}
   - component: {fileID: 5065245702489071448}
+  - component: {fileID: 5369641626222500065}
+  - component: {fileID: 6639592018318467327}
+  - component: {fileID: 7012716880482308657}
   m_Layer: 0
   m_Name: Building_Super Market
   m_TagString: Untagged
@@ -164,5 +167,68 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 23.752502, y: 7.5784726, z: 13.25293}
-  m_Center: {x: -0.47326565, y: 3.7887337, z: 0.8263693}
+  m_Size: {x: 22.210758, y: 5.3904014, z: 9.725907}
+  m_Center: {x: 0.09386444, y: 2.694698, z: -0.64446783}
+--- !u!65 &5369641626222500065
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100000}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 9.058403, y: 7.3230395, z: 11.492359}
+  m_Center: {x: 0.003745079, y: 3.6610172, z: -0.053915977}
+--- !u!65 &6639592018318467327
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100000}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 23.061312, y: 0.14316082, z: 10.479109}
+  m_Center: {x: -0.81886005, y: 4.001206, z: 0.29575706}
+--- !u!65 &7012716880482308657
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100000}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 8.956806, y: 0.14316082, z: 1.987555}
+  m_Center: {x: -0.014719009, y: 4.001206, z: 6.461274}

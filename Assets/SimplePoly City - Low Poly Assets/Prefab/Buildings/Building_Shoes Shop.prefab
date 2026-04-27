@@ -14,6 +14,8 @@ GameObject:
   - component: {fileID: 5269340458488741416}
   - component: {fileID: 941764262829716480}
   - component: {fileID: 197499731384803623}
+  - component: {fileID: 6052872539496226193}
+  - component: {fileID: 1395360813896280987}
   m_Layer: 0
   m_Name: Building_Shoes Shop
   m_TagString: Untagged
@@ -164,5 +166,49 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 12.039232, y: 8.357073, z: 12.035599}
-  m_Center: {x: 0.5025642, y: 4.1785145, z: 0.5064604}
+  m_Size: {x: 11.070788, y: 8.119233, z: 7.526182}
+  m_Center: {x: 0.087320805, y: 4.0842986, z: -1.6166935}
+--- !u!65 &6052872539496226193
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100000}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 7.7162466, y: 8.148412, z: 3.4476385}
+  m_Center: {x: -1.6589284, y: 4.074184, z: 3.9982986}
+--- !u!136 &1395360813896280987
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100000}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 1.25
+  m_Height: 8.357073
+  m_Direction: 1
+  m_Center: {x: 3.5, y: 4.1785145, z: 3.5}

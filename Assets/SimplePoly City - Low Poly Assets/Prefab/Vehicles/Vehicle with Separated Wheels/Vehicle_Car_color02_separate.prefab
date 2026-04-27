@@ -459,11 +459,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 400010}
-  - component: {fileID: -8548461634720307517}
   - component: {fileID: 216446079962486745}
   - component: {fileID: -12187637135382928}
   - component: {fileID: -7714955633696348709}
   - component: {fileID: -8455915515165265337}
+  - component: {fileID: -2329883735629403165}
   m_Layer: 0
   m_Name: Vehicle_Car_color02_separate
   m_TagString: Untagged
@@ -491,28 +491,6 @@ Transform:
   - {fileID: 400000}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!64 &-8548461634720307517
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 100010}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 0}
 --- !u!114 &216446079962486745
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -525,7 +503,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09ac2a2b6fedc8e4c82c3d63c17efb73, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WeightData
-  weight: 8000
+  weight: 1500
 --- !u!23 &-12187637135382928
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -622,3 +600,24 @@ MonoBehaviour:
   onExplosionFinished:
     m_PersistentCalls:
       m_Calls: []
+--- !u!65 &-2329883735629403165
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100010}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}

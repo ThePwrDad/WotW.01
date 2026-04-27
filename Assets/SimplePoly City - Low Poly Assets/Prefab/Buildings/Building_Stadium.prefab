@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 2300000}
   - component: {fileID: 2359139793011919089}
   - component: {fileID: -1493021105040506629}
-  - component: {fileID: -2717708938609707361}
+  - component: {fileID: 2796842559261254428}
   m_Layer: 0
   m_Name: Building_Stadium
   m_TagString: Untagged
@@ -145,8 +145,8 @@ MonoBehaviour:
   onExplosionFinished:
     m_PersistentCalls:
       m_Calls: []
---- !u!65 &-2717708938609707361
-BoxCollider:
+--- !u!64 &2796842559261254428
+MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -163,6 +163,7 @@ BoxCollider:
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 35.460045, y: 11.730206, z: 44.755478}
-  m_Center: {x: -0.3217516, y: 5.823163, z: -0.0017976761}
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 4300000, guid: 8d799610519b6274c8bb35a7fd95f5f5, type: 3}
