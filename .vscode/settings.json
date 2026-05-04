@@ -67,6 +67,6 @@
         "*.sln": "*.csproj",
         "*.slnx": "*.csproj"
     },
-    "dotnet.defaultSolution": "WotW.slnx",
+    "dotnet.defaultSolution": "WotW.01.slnx",
     "dotnet.enableWorkspaceBasedDevelopment": false
 }
