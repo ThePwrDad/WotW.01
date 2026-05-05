@@ -57,6 +57,7 @@
     <Compile Include="Assets\StarterAssets\Mobile\Scripts\VirtualInputs\UIVirtualTouchZone.cs" />
     <Compile Include="Assets\Ui\PauseMenu.cs" />
     <Compile Include="Assets\WeightStrengthScrips\PlayerStats.cs" />
+    <Compile Include="Assets\Ui\MainMenuOptionsController.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark02.cs" />
     <Compile Include="Assets\StarterAssets\Mobile\Scripts\VirtualInputs\UIVirtualJoystick.cs" />
     <Compile Include="Assets\LevelFlow\PlayerCameraScaler.cs" />

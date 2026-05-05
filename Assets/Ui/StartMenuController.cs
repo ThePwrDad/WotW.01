@@ -10,6 +10,8 @@ public class StartMenuController : MonoBehaviour
     public GameObject startMenuPanel;
     public GameObject levelSelectionPanel;
     public GameObject leaderboardPanel;
+    public GameObject optionsPanel;
+    public GameObject creditsPanel;
 
     [Header("Leaderboard UI")]
     public TMP_Text leaderboardTitleText;
@@ -24,6 +26,8 @@ public class StartMenuController : MonoBehaviour
         if (startMenuPanel != null) startMenuPanel.SetActive(true);
         if (levelSelectionPanel != null) levelSelectionPanel.SetActive(false);
         if (leaderboardPanel != null) leaderboardPanel.SetActive(false);
+        if (optionsPanel != null) optionsPanel.SetActive(false);
+        if (creditsPanel != null) creditsPanel.SetActive(false);
 
         RefreshLeaderboardPanel();
     }
@@ -32,6 +36,18 @@ public class StartMenuController : MonoBehaviour
     {
         if (Keyboard.current == null || !Keyboard.current.escapeKey.wasPressedThisFrame)
         {
+            return;
+        }
+
+        if (creditsPanel != null && creditsPanel.activeSelf)
+        {
+            CloseCredits();
+            return;
+        }
+
+        if (optionsPanel != null && optionsPanel.activeSelf)
+        {
+            CloseOptions();
             return;
         }
 
@@ -52,6 +68,8 @@ public class StartMenuController : MonoBehaviour
     {
         if (startMenuPanel != null) startMenuPanel.SetActive(false);
         if (leaderboardPanel != null) leaderboardPanel.SetActive(false);
+        if (optionsPanel != null) optionsPanel.SetActive(false);
+        if (creditsPanel != null) creditsPanel.SetActive(false);
         if (levelSelectionPanel != null) levelSelectionPanel.SetActive(true);
     }
 
@@ -66,6 +84,8 @@ public class StartMenuController : MonoBehaviour
     {
         if (startMenuPanel != null) startMenuPanel.SetActive(false);
         if (levelSelectionPanel != null) levelSelectionPanel.SetActive(false);
+        if (optionsPanel != null) optionsPanel.SetActive(false);
+        if (creditsPanel != null) creditsPanel.SetActive(false);
         if (leaderboardPanel != null) leaderboardPanel.SetActive(true);
         RefreshLeaderboardPanel();
     }
@@ -73,6 +93,36 @@ public class StartMenuController : MonoBehaviour
     public void CloseLeaderboard()
     {
         if (leaderboardPanel != null) leaderboardPanel.SetActive(false);
+        if (startMenuPanel != null) startMenuPanel.SetActive(true);
+    }
+
+    public void OpenOptions()
+    {
+        if (startMenuPanel != null) startMenuPanel.SetActive(false);
+        if (levelSelectionPanel != null) levelSelectionPanel.SetActive(false);
+        if (leaderboardPanel != null) leaderboardPanel.SetActive(false);
+        if (creditsPanel != null) creditsPanel.SetActive(false);
+        if (optionsPanel != null) optionsPanel.SetActive(true);
+    }
+
+    public void CloseOptions()
+    {
+        if (optionsPanel != null) optionsPanel.SetActive(false);
+        if (startMenuPanel != null) startMenuPanel.SetActive(true);
+    }
+
+    public void OpenCredits()
+    {
+        if (startMenuPanel != null) startMenuPanel.SetActive(false);
+        if (levelSelectionPanel != null) levelSelectionPanel.SetActive(false);
+        if (leaderboardPanel != null) leaderboardPanel.SetActive(false);
+        if (optionsPanel != null) optionsPanel.SetActive(false);
+        if (creditsPanel != null) creditsPanel.SetActive(true);
+    }
+
+    public void CloseCredits()
+    {
+        if (creditsPanel != null) creditsPanel.SetActive(false);
         if (startMenuPanel != null) startMenuPanel.SetActive(true);
     }
 
